@@ -64,25 +64,27 @@ total = 0
 
 puts 'Enter a start date (yyyy-mm-dd): '
 start_date = gets.chomp
+if (start_date == '')
+  date = Date.today
+  last_monday = (date - 7)
+  start_date = last_monday.to_s
+end
 
 puts 'Enter an end date (yyyy-mm-dd): '
 end_date = gets.chomp
-
-
-start_date = start_date.split('-')
-end_date = end_date.split('-')
-
-if start_date[1] == end_date[1] and start_date[0] == end_date[0] 
-  for day in start_date[2] .. end_date[2] do
-    if Date.valid_date?(start_date[0].to_i,start_date[1].to_i,day.to_i)
-      date_s = start_date[0] + '-' + start_date[1] + '-' + day
-      day_val = client.activities_on_date(date_s)['summary']['steps']
-      puts date_s + ' => ' + day_val.to_s
-      total += day_val
-    end
-  end
-  puts total
-else 
-  puts 'trickier case -- will handle for next week'
+if (end_date == '')
+  date = Date.today
+  yesterday = (date - 1)
+  end_date = yesterday.to_s
 end
 
+current_date = start_date
+
+until current_date > end_date do
+  day_val = client.activities_on_date(current_date)['summary']['steps']
+  puts current_date + ' => ' + day_val.to_s
+  total += day_val
+  current_date = (Date.parse(current_date)+1).to_s
+end
+
+puts total
